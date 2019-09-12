@@ -5,7 +5,8 @@
       (v-buffer-name "*elmame*")
       v-cmd-paramhash
       v-cmd
-      f-show-ui)
+      f-show-ui
+      f-read-file-name)
 
   (setq elmame-context (make-hash-table))
 
@@ -51,16 +52,43 @@
 	      (progn
 		(if (not (eq (line-number-at-pos) 1)) (insert " \t\n") )
 	        (insert-button file
-	          'action (lambda (button1) (message-box (concat elmame-cmd " " file))))
-	        ) ) ) )
+		  'action (lambda (button1)
+			    (message-box (concat elmame-cmd " file"))
+			    (funcall (gethash 'f-launch elmame-context))
+			  ) ) ) ) ) )
 
       (mapcar f-handle-file (directory-files v-rom-path)) ) )
 
     ;; Show the buffer just created
     (switch-to-buffer v-buffer-name)
+    (setq buffer-read-only 't)
   
 		    
     ) )
+
+  ;; Function definition -- read file name from current line
+  (setq f-read-file-name (lambda ()
+    (let (v1-file-name)
+      (save-excursion
+	(setq v1-file-name
+	(buffer-substring
+          (progn (beginning-of-line) (point))
+          (progn (search-forward ".") (left-char) (point))) ) )
+      v1-file-name ) ) )
+  ;; Add function definition to context
+  (puthash 'f-read-file-name f-read-file-name elmame-context)
+
+  ;; Function definition -- launch
+  (setq f-launch (lambda ()
+    (let (v1-cmd (v1-buffer "*elmame-output*"))
+      (setq v1-cmd (concat elmame-cmd " " (funcall (gethash 'f-read-file-name elmame-context))))
+      (get-buffer-create v1-buffer)
+      (switch-to-buffer-other-window v1-buffer)
+      (start-process-shell-command "elmame-launch" v1-buffer v1-cmd)
+      ;;(message-box v1-cmd)
+    ) ) )
+  ;; Add function definition to context
+  (puthash 'f-launch f-launch elmame-context)
 
   (funcall f-show-ui)
   
