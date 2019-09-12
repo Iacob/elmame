@@ -50,12 +50,13 @@
 	  (lambda (file)
 	    (if (not (member file '("." "..")))
 	      (progn
-		(if (not (eq (line-number-at-pos) 1)) (insert " \t\n") )
+		
 	        (insert-button file
 		  'action (lambda (button1)
-			    (message-box (concat elmame-cmd " file"))
+			    ;; Launch
 			    (funcall (gethash 'f-launch elmame-context))
-			  ) ) ) ) ) )
+			    ) )
+		(insert " \t\n") ) ) ) )
 
       (mapcar f-handle-file (directory-files v-rom-path)) ) )
 
@@ -84,7 +85,10 @@
       (setq v1-cmd (concat elmame-cmd " " (funcall (gethash 'f-read-file-name elmame-context))))
       (get-buffer-create v1-buffer)
       ;; Go to the end of buffer
-      (with-current-buffer v1-buffer (end-of-buffer))
+      (with-current-buffer v1-buffer
+	(end-of-buffer)
+	(insert "\n----------\n")
+	(insert (concat "\n" v1-cmd "\n")))
       (switch-to-buffer-other-window v1-buffer)
       (start-process-shell-command "elmame-launch" v1-buffer v1-cmd)
       ;;(message-box v1-cmd)
