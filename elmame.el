@@ -83,6 +83,8 @@
     (let (v1-cmd (v1-buffer "*elmame-output*"))
       (setq v1-cmd (concat elmame-cmd " " (funcall (gethash 'f-read-file-name elmame-context))))
       (get-buffer-create v1-buffer)
+      ;; Go to the end of buffer
+      (with-current-buffer v1-buffer (end-of-buffer))
       (switch-to-buffer-other-window v1-buffer)
       (start-process-shell-command "elmame-launch" v1-buffer v1-cmd)
       ;;(message-box v1-cmd)
