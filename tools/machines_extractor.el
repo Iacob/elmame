@@ -10,22 +10,40 @@
       
       (switch-to-buffer "**machine lines**")
       (erase-buffer)
+      (insert "(") ;; write list start char
       (dolist (machine (seq-drop info-data 2))
-	(let (manufacturer year desc)
-	  (setq year (assoc 'year (seq-drop machine 2)))
-	  (when year
-	    (setq year (nth 2 year)) )
+	(let (manufacturer name year desc isdevice runnable isbios)
 	  
-	  (setq manufacturer (assoc 'manufacturer (seq-drop machine 2)))
-	  (when manufacturer
-	    (setq manufacturer (nth 2 manufacturer)) )
+	  (setq isdevice (alist-get 'isdevice (nth 1 machine)))
+	  (setq runnable (alist-get 'runnable (nth 1 machine)))
+	  (setq isbios (alist-get 'isbios (nth 1 machine)))
 
-	  (setq desc (assoc 'description (seq-drop machine 2)))
-	  (when desc
-	    (setq desc (nth 2 desc)) )
-	  (insert (format "%s %s %s" year manufacturer desc) "\n")
+	  (when (and (not (string= isdevice "yes"))
+		     (not (string= runnable "yes"))
+		     (not (string= isbios "yes")))
+	    
+	    (setq name (alist-get 'name (nth 1 machine)))
+	    
+	    (setq year (assoc 'year (seq-drop machine 2)))
+	    (when year
+	      (setq year (nth 2 year)) )
+	    
+	    (setq manufacturer (assoc 'manufacturer (seq-drop machine 2)))
+	    (when manufacturer
+	      (setq manufacturer (nth 2 manufacturer)) )
+	    
+	    (setq desc (assoc 'description (seq-drop machine 2)))
+	    (when desc
+	      (setq desc (nth 2 desc)) )
+	    (insert (format "(name %s year %s manufacturer %s desc %s)"
+			    (json-encode-string name)
+			    (json-encode-string year)
+			    (json-encode-string manufacturer)
+			    (json-encode-string desc)) "\n")
+	    )
 	  )
 	)
+      (insert ")") ;; write list end char
       )
     )
   )
