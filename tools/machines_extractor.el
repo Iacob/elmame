@@ -10,7 +10,7 @@
       
       (switch-to-buffer "**machine lines**")
       (erase-buffer)
-      (insert "(") ;; write list start char
+      (insert "(defun elmame-load-machine-defs () '(") ;; write function def
       (dolist (machine (seq-drop info-data 2))
 	(let (manufacturer name year desc isdevice runnable isbios)
 	  
@@ -43,7 +43,7 @@
 	    )
 	  )
 	)
-      (insert ")") ;; write list end char
+      (insert ") )") ;; write function end
       )
     )
   )
