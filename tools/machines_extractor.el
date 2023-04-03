@@ -5,12 +5,12 @@
       ;;(switch-to-buffer "**mame info xml**")
       (with-temp-buffer
 	(erase-buffer)
-	(insert-file "../documents/info/mame.xml")
+	(insert-file "../documents/local/info/mame.xml")
 	(setq info-data (libxml-parse-xml-region (point-min) (point-max))) )
       
       (switch-to-buffer "**machine lines**")
       (erase-buffer)
-      (insert "(defun elmame-load-machine-defs () '(") ;; write function def
+      (insert "(defun elmame-mame-load-machine-defs () '(") ;; write function def
       (dolist (machine (seq-drop info-data 2))
 	(let (manufacturer name year desc isdevice runnable isbios)
 	  
