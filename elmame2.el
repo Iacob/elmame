@@ -2,7 +2,7 @@
 (load-file "mame_machine_info_loader.el")
 
 (defun elmame-mame-get-config (name)
-  (let ((default-config '(rompath "roms"))
+  (let ((default-config '(exec "mame" rompath "roms"))
 	config-value)
     (if (boundp 'elmame-mame-config)
 	(setq config-value (plist-get elmame-mame-config name)))
@@ -30,13 +30,30 @@
       ;;(message "filelist: %s" filelist)
       (setq machinelist (mapcar (lambda (m) (seq-find (lambda (def) (string= (plist-get def 'name) m)) machinedefs)) filelist))
       (setq machinelist (seq-filter (lambda (m) m) machinelist)) )
-    (message "machinelist: %s" machinelist)
+    ;;(message "machinelist: %s" machinelist)
     machinelist ) )
+
+(defun elmame-mame-make-shell-command (machine-name)
+  ;; mame <machine-name> -rompath roms
+  (let ((exec (elmame-mame-get-config 'exec))
+	(rompath (elmame-mame-get-config 'rompath))
+	(args (elmame-mame-get-config 'args))
+	args-text)
+    (if (not args)
+	(setq args-text "")
+      (setq args-text
+	    (string-join (mapcar (lambda (arg) (format "%s" arg)) args) " ")))
+    
+    (format "%s %s -rompath %s %s" exec machine-name rompath args-text) ) )
 
 (defun elmame-mame ()
   (interactive)
   (run-hooks 'elmame-mame-mode-hook)
-  (let (machinelist column-width fn-calc-width)
+  (let (machinelist
+	column-width
+	(working-dir (elmame-mame-get-config 'working-dir))
+	fn-calc-width)
+
     (setq machinelist (elmame-mame-list-roms))
     (setq fn-calc-width (lambda (col)
 			  (seq-max (mapcar (lambda (x) (length (plist-get x col))) machinelist))
@@ -52,11 +69,27 @@
     (switch-to-buffer "**machine list**")
     (setq buffer-read-only nil)
     (erase-buffer)
+    (when working-dir
+      (cd working-dir) )
+    (when working-dir
+      (message "Swtiching to directory: %s" working-dir)
+      (cd working-dir) )
     (mapcar (lambda (m)
 	      (let ((machine-name (plist-get m 'name)))
 		(insert-button
 		 machine-name
-		 'action (lambda (x) (message "%s" (button-get x 'machine-name)))
+		 'action (lambda (x)
+			   ;;(message "%s" (button-get x 'machine-name))
+			   (let* ((machine-name (button-get x 'machine-name))
+				  (cmd-line (elmame-mame-make-shell-command machine-name)))
+			     ;;(message-box cmd-line)
+			     (switch-to-buffer-other-window "**mame output**")
+			     
+			     (insert (format "Running command: %s" cmd-line) "\n")
+			     (start-process-shell-command "mame command" "**mame output**" cmd-line)
+			     
+			     )
+			   )
 		 'machine-name machine-name
 		 'follow-link 't)
 		)
@@ -64,6 +97,7 @@
 	      (insert "\n")
 	      )
 	    machinelist)
+    (beginning-of-buffer)
     (setq buffer-read-only 't)
     
     ) )
