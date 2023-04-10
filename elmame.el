@@ -1,4 +1,5 @@
 
+(load-library "elmame_mame_machine_info_loader")
 ;;(load-file "mame_machine_info_loader.el")
 
 (defun elmame-mame-get-config (name)
