@@ -1,0 +1,40 @@
+
+#+TITLE: elmame ( A MAME Front-end for Emacs )
+#+STARTUP: showeverything
+#+OPTIONS: toc:nil
+#+AUTHOR: Yong <luo.yong.name@gmail.com>
+
+* Installation
+
+Put the two files =elmame.el= and =elmame_mame_machine_info_loader.el= into a directory ( We will use <elmame-dir> to refer to this directory later ).
+
+Then add the following lines to ~/.emacs
+
+#+BEGIN_SRC emacs-lisp
+  ;; Add elmame to load-path
+  (add-to-list 'load-path "<elmame-dir>")
+  ;; Add elmame to autoload list
+  (autoload 'elmame-mame "elmame" "" 't)
+#+END_SRC
+
+* Configuration
+
+Wrap the configurations into a hook and add it to ~/.emacs
+
+#+BEGIN_SRC emacs-lisp
+(add-hook 'elmame-mame-mode-hook
+	  (lambda ()
+	    (setq elmame-mame-config
+		  '(rompath "<rom path>" ;; Directory contains the rom files.
+			    working-dir "<working directory>"
+			    args (-window ""))) ;; Extra arguments for starting mame.
+	    ))
+#+END_SRC
+
+* Start
+
+Run this command to start elmame:
+
+#+BEGIN_SRC
+M-x elmame-mame
+#+END_SRC
