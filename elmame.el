@@ -2,6 +2,13 @@
 (load-library "elmame_mame_machine_info_loader")
 ;;(load-file "mame_machine_info_loader.el")
 
+(defun elmame-mame-get-user-config ()
+  (if (file-readable-p "~/.elmame-mame")
+      (with-temp-buffer
+	(insert-file "~/.elmame-mame")
+	(setq elmame-mame-user-config (read (buffer-string)) ) )
+    nil ) )
+
 (defun elmame-mame-get-config (name)
   "Get config value with a name."
   (let ((default-config '(exec "mame" rompath "roms"))
@@ -112,22 +119,25 @@
 		 'machine-name machine-name
 		 'follow-link 't)
 		
-		(insert (make-string (1+ (- name-width (length machine-name))) ? ))
+		(insert (make-string (1+ (- name-width (length machine-name))) ?\s))
 		(insert year)
-		(insert (make-string (1+ (- year-width (length year))) ? ))
+		(insert (make-string (1+ (- year-width (length year))) ?\s))
 		(insert manufacturer)
-		(insert (make-string (1+ (- manufacturer-width (length manufacturer))) ? ))
+		(insert (make-string (1+ (- manufacturer-width (length manufacturer))) ?\s))
 		(insert desc)
-		(insert (make-string (1+ (- desc-width (length desc))) ? ))
+		(insert (make-string (1+ (- desc-width (length desc))) ?\s))
 		(insert "\n")
 		)
 	      )
 	    machinelist)
+    (insert "\n\n")
+    (insert (propertize "Use ``M-x elmame-mame-open-config-panel'' to open config panel" 'face 'italic))
+    (insert "\n")
     (beginning-of-buffer)
     (setq buffer-read-only 't) ) )
 
 
-;; (defun elmame-mame-open-config-panel ()
-;;   (interactive)
-;;   (load-library "elmame-config")
-;;   (elmame-mame-config-panel) )
+(defun elmame-mame-open-config-panel ()
+  (interactive)
+  (load-library "elmame-config")
+  (elmame-mame-config-panel) )
