@@ -60,7 +60,9 @@
     (setq machinelist (elmame-mame-list-roms))
     (setq fn-calc-width
 	  (lambda (col)
-	    (seq-max (mapcar (lambda (x) (length (plist-get x col))) machinelist)) ) )
+	    (let (textlen-list)
+	      (setq textlen-list (mapcar (lambda (x) (length (plist-get x col))) machinelist))
+	      (if textlen-list (seq-max textlen-list) 0) ) ) )
 
     (setq fn-get-width
 	  (lambda (col)
@@ -122,6 +124,10 @@
 	      )
 	    machinelist)
     (beginning-of-buffer)
-    (setq buffer-read-only 't)
-    
-    ) )
+    (setq buffer-read-only 't) ) )
+
+
+;; (defun elmame-mame-open-config-panel ()
+;;   (interactive)
+;;   (load-library "elmame-config")
+;;   (elmame-mame-config-panel) )
