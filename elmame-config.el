@@ -18,15 +18,15 @@
 	    (when (> (length text-working-dir) 0)
 	      (setq elmame-mame-config-text
 		    (concat elmame-mame-config-text
-			    "working-dir " "\"" text-working-dir "\"" "\n")))
+			    "working-dir " (json-serialize text-working-dir) "\n")))
 	    (when (> (length text-rom-dir) 0)
 	      (setq elmame-mame-config-text
 		    (concat elmame-mame-config-text
-			    "rompath " "\"" text-rom-dir "\"" "\n")))
+			    "rompath " (json-serialize text-rom-dir) "\n")))
 	    (when (> (length (widget-value widget-extra-args)) 0)
 	      (setq elmame-mame-config-text
 		    (concat elmame-mame-config-text
-			    "args " "\"" (widget-value widget-extra-args) "\"" "\n")))
+			    "args " (json-serialize (widget-value widget-extra-args)) "\n")))
 	    (setq elmame-mame-config-text
 		  (concat "(" elmame-mame-config-text ")"))
 	    
@@ -66,6 +66,16 @@
     (widget-create 'link
 		   :notify (lambda (&rest params) (kill-buffer (buffer-name)))
 		   "Close")
-    (widget-setup) ) )
+    (widget-setup)
+
+    ;; Initial values
+    (let ((cfg (elmame-mame-read-user-config)))
+      (message "cfg: %s" cfg)
+      (when cfg
+	(setq text-rom-dir (or (plist-get cfg 'rompath) ""))
+	(setq text-working-dir (or (plist-get cfg 'working-dir) ""))
+	(widget-value-set widget-text-rom-dir text-rom-dir)
+	(widget-value-set widget-text-working-dir text-working-dir)
+	(widget-value-set widget-extra-args (plist-get cfg 'args)) ) ) ) )
 
 
