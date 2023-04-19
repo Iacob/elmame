@@ -2,19 +2,35 @@
 (load-library "elmame_mame_machine_info_loader")
 ;;(load-file "mame_machine_info_loader.el")
 
+(defvar elmame-mame-user-config nil "elmame-mame user config from file")
+
+(defun elmame-mame-read-user-config ()
+  (let (config-text cfg)
+    (condition-case err
+	(when (file-readable-p "~/.elmame-mame")
+	  (with-temp-buffer
+	    (insert-file "~/.elmame-mame")
+	    (setq config-text
+		  (buffer-substring-no-properties (point-min) (point-max))))
+	  (setq cfg (read config-text)))
+      (error (message "Exception: %s" err) ) )
+    cfg ) )
+
+(defun elmame-mame-reload-user-config ()
+  (setq elmame-mame-user-config (elmame-mame-read-user-config)) )
+
 (defun elmame-mame-get-user-config ()
-  (if (file-readable-p "~/.elmame-mame")
-      (with-temp-buffer
-	(insert-file "~/.elmame-mame")
-	(setq elmame-mame-user-config (read (buffer-string)) ) )
-    nil ) )
+  (or elmame-mame-user-config (elmame-mame-reload-user-config)))
 
 (defun elmame-mame-get-config (name)
   "Get config value with a name."
   (let ((default-config '(exec "mame" rompath "roms"))
+	(user-config (elmame-mame-get-user-config))
 	config-value)
     (if (boundp 'elmame-mame-config)
 	(setq config-value (plist-get elmame-mame-config name)))
+    (if (not config-value)
+	(setq config-value (plist-get user-config name)))
     (if (not config-value)
 	(setq config-value (plist-get default-config name)))
     config-value ) )
@@ -33,6 +49,8 @@
 	filelist
 	machinelist
 	(machinedefs (elmame-mame-load-machine-defs)))
+    (message "Current dir: %s" (pwd))
+    (message "Current rompath: %s" rompath)
     (when (file-directory-p rompath)
       (setq filelist (directory-files rompath nil directory-files-no-dot-files-regexp))
       (setq filelist (mapcar (lambda (x) (car (split-string x "\\."))) filelist))
@@ -50,19 +68,28 @@
 	args-text)
     (if (not args)
 	(setq args-text "")
-      (setq args-text
-	    (string-join (mapcar (lambda (arg) (format "%s" arg)) args) " ")))
+      (if (stringp args)
+	  (setq args-text args)
+	(setq args-text
+	      (string-join (mapcar (lambda (arg) (format "%s" arg)) args) " "))))
     ;; mame <machine-name> -rompath roms
     (format "%s %s -rompath %s %s" exec machine-name rompath args-text) ) )
 
 (defun elmame-mame ()
   (interactive)
   (run-hooks 'elmame-mame-mode-hook)
+  (elmame-mame-reload-user-config)
+  (message "config: %s" (elmame-mame-get-user-config))
+  (message "rompath: %s" (elmame-mame-get-config 'rompath))
   (let (machinelist
 	column-width
 	(working-dir (elmame-mame-get-config 'working-dir))
 	fn-calc-width
 	fn-get-width)
+
+    (when working-dir
+      (message "Swtiching to directory: %s" working-dir)
+      (cd working-dir) )
 
     (setq machinelist (elmame-mame-list-roms))
     (setq fn-calc-width
@@ -88,9 +115,7 @@
     (setq buffer-read-only nil)
     (setq truncate-lines 't)
     (erase-buffer)
-    (when working-dir
-      (message "Swtiching to directory: %s" working-dir)
-      (cd working-dir) )
+    
     (mapcar (lambda (m)
 	      (let ((machine-name (plist-get m 'name))
 		    (year (plist-get m 'year))
