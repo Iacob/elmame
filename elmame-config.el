@@ -6,6 +6,8 @@
   
   (let (fn-save-config)
     (switch-to-buffer "**elmame-mame configuration**")
+    (defvar-local widget-text-exec nil)
+    (defvar-local text-exec "")
     (defvar-local widget-text-working-dir nil)
     (defvar-local text-working-dir "")
     (defvar-local widget-text-rom-dir nil)
@@ -15,6 +17,10 @@
     (setq fn-save-config
 	  (lambda (&rest params)
 	    (setq elmame-mame-config-text "")
+	    (when (> (length text-exec) 0)
+	      (setq elmame-mame-config-text
+		    (concat elmame-mame-config-text
+			    "exec " (json-serialize text-exec) "\n")))
 	    (when (> (length text-working-dir) 0)
 	      (setq elmame-mame-config-text
 		    (concat elmame-mame-config-text
@@ -38,6 +44,17 @@
     ;; (let ((inhibit-read-only 't))
     ;;   (erase-buffer))
     (insert "\n" (propertize "elmame-mame configuration" 'face 'info-title-2) "\n\n")
+    (widget-create 'link
+		   :notify (lambda (&rest params)
+			     (setq text-exec
+				   (read-directory-name
+				    "Please input path of the mame exutable: "))
+			     (widget-value-set widget-text-exec
+					       text-exec))
+		   "Select mame executable")
+    (insert "\n")
+    (setq widget-text-exec (widget-create 'const :format "➥ %v" ""))
+    (insert "\n")
     (widget-create 'link
 		   :notify (lambda (&rest params)
 			     (setq text-working-dir
@@ -72,8 +89,10 @@
     (let ((cfg (elmame-mame-read-user-config)))
       (message "cfg: %s" cfg)
       (when cfg
+	(setq text-exec (or (plist-get cfg 'exec) ""))
 	(setq text-rom-dir (or (plist-get cfg 'rompath) ""))
 	(setq text-working-dir (or (plist-get cfg 'working-dir) ""))
+	(widget-value-set widget-text-exec text-exec)
 	(widget-value-set widget-text-rom-dir text-rom-dir)
 	(widget-value-set widget-text-working-dir text-working-dir)
 	(widget-value-set widget-extra-args (plist-get cfg 'args)) ) ) ) )
