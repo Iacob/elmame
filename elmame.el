@@ -157,6 +157,7 @@
 	    machinelist)
     (insert "\n\n")
     (insert (propertize "Use ``M-x elmame-mame-open-config-panel'' to open config panel" 'face 'italic))
+    (insert "\n" (propertize "Use ``M-x elmame-mame'' to refresh this page" 'face 'italic))
     (insert "\n")
     (beginning-of-buffer)
     (setq buffer-read-only 't) ) )
