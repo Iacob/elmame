@@ -75,6 +75,7 @@
     ;; mame <machine-name> -rompath roms
     (format "%s %s -rompath %s %s" exec machine-name rompath args-text) ) )
 
+;;;###autoload
 (defun elmame-mame ()
   (interactive)
   (run-hooks 'elmame-mame-mode-hook)
