@@ -1,4 +1,6 @@
 
+(provide 'elmame)
+
 (load-library "elmame_mame_machine_info_loader")
 ;;(load-file "mame_machine_info_loader.el")
 
@@ -46,19 +48,25 @@
 (defun elmame-mame-list-roms ()
   "Filter mame roms in rompath and return the list of valid ones."
   (let ((rompath (elmame-mame-get-config 'rompath))
+	(working-dir (elmame-mame-get-config 'working-dir))
 	filelist
 	machinelist
 	(machinedefs (elmame-mame-load-machine-defs)))
-    (message "Current dir: %s" (pwd))
-    (message "Current rompath: %s" rompath)
-    (when (file-directory-p rompath)
-      (setq filelist (directory-files rompath nil directory-files-no-dot-files-regexp))
-      (setq filelist (mapcar (lambda (x) (car (split-string x "\\."))) filelist))
-      ;;(message "filelist: %s" filelist)
-      (setq machinelist (mapcar (lambda (m) (seq-find (lambda (def) (string= (plist-get def 'name) m)) machinedefs)) filelist))
-      (setq machinelist (seq-filter (lambda (m) m) machinelist)) )
-    ;;(message "machinelist: %s" machinelist)
-    machinelist ) )
+    
+    (with-temp-buffer
+      (when working-dir
+	(message "Swtiching to directory: %s" working-dir)
+	(cd working-dir) )
+      (message "Current dir: %s" (pwd))
+      (message "Current rompath: %s" rompath)
+      (when (file-directory-p rompath)
+	(setq filelist (directory-files rompath nil directory-files-no-dot-files-regexp))
+	(setq filelist (mapcar (lambda (x) (car (split-string x "\\."))) filelist))
+	;;(message "filelist: %s" filelist)
+	(setq machinelist (mapcar (lambda (m) (seq-find (lambda (def) (string= (plist-get def 'name) m)) machinedefs)) filelist))
+	(setq machinelist (seq-filter (lambda (m) m) machinelist)) )
+      ;;(message "machinelist: %s" machinelist)
+      machinelist ) ) )
 
 (defun elmame-mame-make-shell-command (machine-name)
   
@@ -88,9 +96,9 @@
 	fn-calc-width
 	fn-get-width)
 
-    (when working-dir
-      (message "Swtiching to directory: %s" working-dir)
-      (cd working-dir) )
+    ;; (when working-dir
+    ;;   (message "Swtiching to directory: %s" working-dir)
+    ;;   (cd working-dir) )
 
     (setq machinelist (elmame-mame-list-roms))
     (setq fn-calc-width

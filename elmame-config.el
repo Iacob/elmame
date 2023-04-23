@@ -1,4 +1,6 @@
 
+(provide 'elmame-config)
+
 (defun elmame-mame-config-panel ()
   (interactive)
   
