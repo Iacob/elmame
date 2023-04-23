@@ -141,6 +141,10 @@
     (setq buffer-read-only nil)
     (setq truncate-lines 't)
     (erase-buffer)
+
+    (when working-dir
+      (message "Swtiching to directory: %s" working-dir)
+      (cd working-dir) )
     
     (mapcar (lambda (m)
 	      (let ((machine-name (plist-get m 'name))
