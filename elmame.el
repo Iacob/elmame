@@ -1,4 +1,21 @@
 
+;;; elmame.el --- A MAME front-end for emacs
+
+;; Author: Yong <luo.yong.name@gmail.com>
+;; URL: https://github.com/Iacob/elmame
+;; Version: 0.1a
+;; Package-Requires: ((emacs "27.1"))
+
+;;; Commentary:
+
+;; A MAME front-end for emacs.
+
+;; ``M-x elmame'' to start the main interface.
+;; Then use ``M-x elmame-mame-open-config-panel'' to open the config panel.
+;; After changing the settings, use ``M-x elmame'' to refresh the interface.
+
+;;; Code:
+
 (provide 'elmame)
 
 (load-library "elmame-mame-machine-info-loader")
@@ -171,6 +188,11 @@
     (beginning-of-buffer)
     (setq buffer-read-only 't) ) )
 
+
+;;;###autoload
+(defun elmame ()
+  (interactive)
+  (elmame-mame))
 
 (defun elmame-mame-open-config-panel ()
   (interactive)
