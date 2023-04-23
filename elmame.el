@@ -1,7 +1,7 @@
 
 (provide 'elmame)
 
-(load-library "elmame_mame_machine_info_loader")
+(load-library "elmame-mame-machine-info-loader")
 ;;(load-file "mame_machine_info_loader.el")
 
 (defvar elmame-mame-user-config nil "elmame-mame user config from file")
