@@ -1,3 +1,17 @@
+;;; elmame-config.el --- Elmame configuration panel
+
+;; Author: Yong <luo.yong.name@gmail.com>
+;; URL: https://github.com/Iacob/elmame
+;; Version: 0.1a
+;; Package-Requires: ((emacs "27.1"))
+
+;;; Commentary:
+
+;; elmame configuration panel
+
+
+;;; Code:
+
 
 (provide 'elmame-config)
 
@@ -99,4 +113,4 @@
 	(widget-value-set widget-text-working-dir text-working-dir)
 	(widget-value-set widget-extra-args (plist-get cfg 'args)) ) ) ) )
 
-
+;;; elmame-config.el ends here

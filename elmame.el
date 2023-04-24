@@ -1,5 +1,4 @@
-
-;;; elmame.el --- A MAME front-end for emacs
+;;; elmame.el --- A MAME front-end
 
 ;; Author: Yong <luo.yong.name@gmail.com>
 ;; URL: https://github.com/Iacob/elmame
@@ -163,8 +162,7 @@
 		    (name-width (funcall fn-get-width 'name))
 		    (year-width (funcall fn-get-width 'year))
 		    (manufacturer-width (funcall fn-get-width 'manufacturer))
-		    (desc-width (funcall fn-get-width 'desc))
-		    )
+		    (desc-width (funcall fn-get-width 'desc)) )
 		
 		(insert-button
 		 machine-name
@@ -176,10 +174,7 @@
 		     (switch-to-buffer-other-window "**mame output**")
 		     
 		     (insert (format "Running command: %s" cmd-line) "\n")
-		     (start-process-shell-command "mame command" "**mame output**" cmd-line)
-		     
-		     )
-		   )
+		     (start-process-shell-command "mame command" "**mame output**" cmd-line) ) )
 		 'machine-name machine-name
 		 'follow-link 't)
 		
@@ -190,9 +185,7 @@
 		(insert (make-string (1+ (- manufacturer-width (length manufacturer))) ?\s))
 		(insert desc)
 		(insert (make-string (1+ (- desc-width (length desc))) ?\s))
-		(insert "\n")
-		)
-	      )
+		(insert "\n") ) )
 	    machinelist)
     (insert "\n")
     (beginning-of-buffer)
@@ -208,3 +201,5 @@
   (interactive)
   (load-library "elmame-config")
   (elmame-mame-config-panel) )
+
+;;; elmame.el ends here
