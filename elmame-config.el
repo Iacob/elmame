@@ -48,17 +48,6 @@
     (insert "\n" (propertize "elmame-mame configuration" 'face 'info-title-2) "\n\n")
     (widget-create 'link
 		   :notify (lambda (&rest params)
-			     (setq text-exec
-				   (read-directory-name
-				    "Please input path of the mame exutable: "))
-			     (widget-value-set widget-text-exec
-					       text-exec))
-		   "Select mame executable")
-    (insert "\n")
-    (setq widget-text-exec (widget-create 'const :format "➥ %v" ""))
-    (insert "\n")
-    (widget-create 'link
-		   :notify (lambda (&rest params)
 			     (setq text-working-dir
 				   (read-directory-name
 				    "Please select working directory: "))
@@ -67,6 +56,17 @@
 		   "Select working directory")
     (insert "\n")
     (setq widget-text-working-dir (widget-create 'const :format "➥ %v" ""))
+    (insert "\n")
+    (widget-create 'link
+		   :notify (lambda (&rest params)
+			     (setq text-exec
+				   (read-directory-name
+				    "Please input path of the mame exutable: "))
+			     (widget-value-set widget-text-exec
+					       text-exec))
+		   "Select mame executable")
+    (insert "\n")
+    (setq widget-text-exec (widget-create 'const :format "➥ %v" ""))
     (insert "\n")
     (widget-create 'link
 		   :notify (lambda (&rest params)

@@ -100,7 +100,6 @@
     ;; mame <machine-name> -rompath roms
     (format "%s %s -rompath %s %s" exec machine-name rompath args-text) ) )
 
-;;;###autoload
 (defun elmame-mame ()
   (interactive)
   (run-hooks 'elmame-mame-mode-hook)
@@ -145,6 +144,17 @@
     (when working-dir
       (message "Swtiching to directory: %s" working-dir)
       (cd working-dir) )
+
+    (if (null (current-local-map))
+	(use-local-map (make-sparse-keymap "Elmame")) )
+    (define-key (current-local-map) [menu-bar elmame]
+      (cons "Elmame" (make-sparse-keymap "Elmame")))
+    (define-key (current-local-map) [menu-bar elmame refresh]
+      '("Refresh" . elmame-mame))
+    (define-key (current-local-map) [menu-bar elmame config]
+      '("Config elmame" . elmame-mame-open-config-panel))
+
+    (insert "\n" (propertize "Use Elmame menu from the menubar to open config panel or refresh this page." 'face 'italic) "\n\n")
     
     (mapcar (lambda (m)
 	      (let ((machine-name (plist-get m 'name))
@@ -185,9 +195,6 @@
 		)
 	      )
 	    machinelist)
-    (insert "\n\n")
-    (insert (propertize "Use ``M-x elmame-mame-open-config-panel'' to open config panel" 'face 'italic))
-    (insert "\n" (propertize "Use ``M-x elmame-mame'' to refresh this page" 'face 'italic))
     (insert "\n")
     (beginning-of-buffer)
     (setq buffer-read-only 't) ) )
