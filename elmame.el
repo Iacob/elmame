@@ -11,8 +11,7 @@
 ;; A MAME front-end for emacs.
 
 ;; ``M-x elmame'' to start the main interface.
-;; Then use ``M-x elmame-mame-open-config-panel'' to open the config panel.
-;; After changing the settings, use ``M-x elmame'' to refresh the interface.
+;; Then use Elmame menu from menu bar to open config panel or refresh the page content.
 
 ;;; Code:
 
