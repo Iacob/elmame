@@ -29,7 +29,7 @@
 
 (provide 'elmame)
 
-(load-library "elmame-mame-machine-info-loader")
+(require 'elmame-mame-machine-info-loader)
 ;;(load-file "mame_machine_info_loader.el")
 
 (require 'elmame-config)
