@@ -7,7 +7,7 @@
 
 ;;; Commentary:
 
-;; A MAME front-end for emacs.
+;; A MAME front-end.
 
 ;; ``M-x elmame'' to start the main interface.
 ;; Then use Elmame menu from menu bar to open config panel or refresh the page content.
@@ -19,14 +19,18 @@
 (load-library "elmame-mame-machine-info-loader")
 ;;(load-file "mame_machine_info_loader.el")
 
-(defvar elmame-mame-user-config nil "elmame-mame user config from file")
+(require 'elmame-config)
+
+(defvar elmame-mame-user-config nil "The `elmame-mame' user config from file.")
+(defvar elmame-mame-context nil "The `elmame-mame' context at runtime.")
 
 (defun elmame-mame-read-user-config ()
+  "Read user config."
   (let (config-text cfg)
     (condition-case err
 	(when (file-readable-p "~/.elmame-mame")
 	  (with-temp-buffer
-	    (insert-file "~/.elmame-mame")
+	    (insert-file-contents "~/.elmame-mame")
 	    (setq config-text
 		  (buffer-substring-no-properties (point-min) (point-max))))
 	  (setq cfg (read config-text)))
@@ -34,13 +38,15 @@
     cfg ) )
 
 (defun elmame-mame-reload-user-config ()
+  "Reload user config to variable and return it."
   (setq elmame-mame-user-config (elmame-mame-read-user-config)) )
 
 (defun elmame-mame-get-user-config ()
+  "Get user config, load it into memory if it's not loaded yet."
   (or elmame-mame-user-config (elmame-mame-reload-user-config)))
 
 (defun elmame-mame-get-config (name)
-  "Get config value with a name."
+  "Get config value with a NAME."
   (let ((default-config '(exec "mame" rompath "roms"))
 	(user-config (elmame-mame-get-user-config))
 	config-value)
@@ -53,8 +59,8 @@
     config-value ) )
 
 (defun elmame-mame-save-context (name value)
-  "Save value to elmame context with a name."
-  (if (boundp 'elmame-mame-context)
+  "Save VALUE to elmame context with a NAME."
+  (if (and (boundp 'elmame-mame-context) elmame-mame-context)
       (if (assoc name elmame-mame-context)
 	  (setcdr (assoc name elmame-mame-context) value)
 	(nconc elmame-mame-context (cons name value)) )
@@ -66,11 +72,11 @@
 	(working-dir (elmame-mame-get-config 'working-dir))
 	filelist
 	machinelist
-	(machinedefs (elmame-mame-load-machine-defs)))
-    
+	(machinedefs (elmame-mame-machine-info-loader-load)))
+
     (with-temp-buffer
       (when working-dir
-	(message "Swtiching to directory: %s" working-dir)
+	(message "Switching to directory: %s" working-dir)
 	(cd working-dir) )
       (message "Current dir: %s" (pwd))
       (message "Current rompath: %s" rompath)
@@ -84,7 +90,7 @@
       machinelist ) ) )
 
 (defun elmame-mame-make-shell-command (machine-name)
-  
+  "Make the shell command to start a machine with MACHINE-NAME."
   (let ((exec (elmame-mame-get-config 'exec))
 	(rompath (elmame-mame-get-config 'rompath))
 	(args (elmame-mame-get-config 'args))
@@ -99,6 +105,7 @@
     (format "%s %s -rompath %s %s" exec machine-name rompath args-text) ) )
 
 (defun elmame-mame ()
+  "Start MAME front-end."
   (interactive)
   (run-hooks 'elmame-mame-mode-hook)
   (elmame-mame-reload-user-config)
@@ -150,11 +157,11 @@
     (define-key (current-local-map) [menu-bar elmame refresh]
       '("Refresh" . elmame-mame))
     (define-key (current-local-map) [menu-bar elmame config]
-      '("Config elmame" . elmame-mame-open-config-panel))
+      '("Config Panel" . elmame-config-open-config-panel))
 
     (insert "\n" (propertize "Use Elmame menu from the menubar to open config panel or refresh this page." 'face 'italic) "\n\n")
     
-    (mapcar (lambda (m)
+    (mapc (lambda (m)
 	      (let ((machine-name (plist-get m 'name))
 		    (year (plist-get m 'year))
 		    (manufacturer (plist-get m 'manufacturer))
@@ -188,18 +195,19 @@
 		(insert "\n") ) )
 	    machinelist)
     (insert "\n")
-    (beginning-of-buffer)
+    (goto-char (point-min))
     (setq buffer-read-only 't) ) )
 
 
 ;;;###autoload
 (defun elmame ()
+  "Start MAME front-end."
   (interactive)
   (elmame-mame))
 
-(defun elmame-mame-open-config-panel ()
-  (interactive)
-  (load-library "elmame-config")
-  (elmame-mame-config-panel) )
+;; (defun elmame-mame-open-config-panel ()
+;;   (interactive)
+;;   (load-library "elmame-config")
+;;   (elmame-mame-config-panel) )
 
 ;;; elmame.el ends here

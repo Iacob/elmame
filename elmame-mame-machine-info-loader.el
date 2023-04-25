@@ -1,4 +1,19 @@
-(defun elmame-mame-load-machine-defs () '((name "005" year "1981" manufacturer "Sega" desc "005")
+;;; elmame-mame-machine-info-loader.el --- MAME Machine info loader
+
+;; Author: Yong <luo.yong.name@gmail.com>
+;; URL: https://github.com/Iacob/elmame
+;; Version: 0.1a
+;; Package-Requires: ((emacs "27.1"))
+
+;;; Commentary:
+
+;; MAME machine info loader.
+
+;;; Code:
+
+(provide 'elmame-mame-machine-info-loader)
+
+(defun elmame-mame-machine-info-loader-load () '((name "005" year "1981" manufacturer "Sega" desc "005")
 (name "100lions" year "2006" manufacturer "Aristocrat" desc "100 Lions (10219211, NSW/ACT)")
 (name "10yard" year "1983" manufacturer "Irem" desc "10-Yard Fight (World, set 1)")
 (name "10yard85" year "1985" manufacturer "Irem (Taito license)" desc "10-Yard Fight '85 (US, Taito license)")
@@ -39421,5 +39436,6 @@
 (name "zx97" year "1997" manufacturer "Wilf Rigter" desc "ZX97")
 (name "zzblock" year "1979" manufacturer "Taito" desc "Zun Zun Block [TTL]")
 (name "zzyzzyxx" year "1982" manufacturer "Cinematronics / Advanced Microcomputer Systems" desc "Zzyzzyxx (set 1)")
-(name "zzyzzyxx2" year "1982" manufacturer "Cinematronics / Advanced Microcomputer Systems" desc "Zzyzzyxx (set 2)")
-) )
+(name "zzyzzyxx2" year "1982" manufacturer "Cinematronics / Advanced Microcomputer Systems" desc "Zzyzzyxx (set 2)") ) )
+
+;;; elmame-mame-machine-info-loader.el ends here
