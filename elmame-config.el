@@ -52,14 +52,19 @@
 	  (lambda (&rest params)
 	    (setq elmame-config-user-config-text "")
 	    (let (config-text)
-	      (puthash 'args (widget-value (plist-get (cdr (assoc 'widget-extra-args elmame-config-form)) 'widget)) elmame-config-formvalues)
+	      ;; Write values in 'value-widget' to formvalues hashmap.
+	      (dolist (field elmame-config-form)
+		(when (equal (plist-get field 'type) 'value-widget)
+		  (puthash (plist-get field 'name)
+			   (widget-value (plist-get field 'widget))
+			   elmame-config-formvalues)))
 	      (maphash (lambda (config-key config-value)
 			 (when (> (length (or config-value "")) 0)
 			   (setq elmame-config-user-config-text
 			       (concat elmame-config-user-config-text
 				       (format "%s " config-key)
 				       (json-serialize config-value)
-				       "\n") ) ) )
+				       "\n"))))
 		       elmame-config-formvalues)
 	      (setq elmame-config-user-config-text
 		    (concat "(" elmame-config-user-config-text ")"))
@@ -67,8 +72,7 @@
 		(with-temp-buffer
 		  (message "config content to save:\n %s" elmame-config-user-config-text)
 		  (insert elmame-config-user-config-text)
-		  (write-file "~/.elmame-mame" 't) ) )
-	      ) ) )
+		  (write-file "~/.elmame-mame" 't))))))
     
     ;; (let ((inhibit-read-only 't))
     ;;   (erase-buffer))
@@ -83,14 +87,13 @@
 		       (puthash 'working-dir dir-name
 				elmame-config-formvalues)
 		       (dolist (field elmame-config-form)
-			 (when (equal (car field) 'widget-working-dir)
-			   (widget-value-set (plist-get (cdr field) 'widget) dir-name) ) ) ) )
+			 (when (equal (plist-get field 'name) 'working-dir)
+			   (widget-value-set (plist-get field 'widget) dir-name)))))
 		   "Select working directory")
     (insert "\n")
     (add-to-list 'elmame-config-form
-		 (list 'widget-working-dir
+		 (list 'name 'working-dir
 		       'type 'widget
-		       'name 'working-dir
 		       'widget (widget-create 'const :format "➥ %v" "") ) )
     (insert "\n")
     (widget-create 'link
@@ -103,17 +106,15 @@
 				"Please select mame executable: "))
 			 (puthash 'exec dir-name elmame-config-formvalues)
 			 (dolist (field elmame-config-form)
-			   (when (equal (car field) 'widget-exec)
-			     (widget-value-set (plist-get (cdr field)
-							  'widget)
+			   (when (equal (plist-get field 'name) 'exec)
+			     (widget-value-set (plist-get field 'widget)
 					       dir-name) ) ) ) ) )
 		   "Select mame executable")
     (insert "\n")
     (add-to-list 'elmame-config-form
-		 (list 'widget-exec
+		 (list 'name 'exec
 		       'type 'text-widget
-		       'name 'exec
-		       'widget (widget-create 'const :format "➥ %v" "") ) )
+		       'widget (widget-create 'const :format "➥ %v" "")))
     (insert "\n")
     (widget-create 'link
 		   :notify
@@ -124,23 +125,20 @@
 			      "Please select rom directory: "))
 		       (puthash 'rompath dir-name elmame-config-formvalues)
 		       (dolist (field elmame-config-form)
-			 (when (equal (car field) 'widget-rompath)
-			   (widget-value-set (plist-get (cdr field)
-							'widget)
+			 (when (equal (plist-get field 'name) 'rompath)
+			   (widget-value-set (plist-get field 'widget)
 					     dir-name) ) ) ) )
 		   "Select rom directory")
     (insert "\n")
     (add-to-list 'elmame-config-form
-		 (list 'widget-rompath
+		 (list 'name 'rompath
 		       'type 'text-widget
-		       'name 'rompath
 		       'widget (widget-create 'const :format "➥ %v" "") ) )
     (insert "\n")
     (insert "\nextra arguments:\n")
     (add-to-list 'elmame-config-form
-		 (list 'widget-extra-args
+		 (list 'name 'args
 		       'type 'value-widget
-		       'name 'args
 		       'widget (widget-create 'editable-field "") ) )
     
     (insert "\n")
@@ -161,25 +159,12 @@
 	(puthash 'args (plist-get cfg 'args) elmame-config-formvalues)
 
 	(dolist (field elmame-config-form)
-	  (let* ((widget-name (plist-get (cdr field) 'name))
+	  (let* ((widget-name (plist-get field 'name))
 		 (config-value
 		  (gethash widget-name elmame-config-formvalues)))
-	    (message "Current config: %s:%s" widget-name config-value)
+	    ;;(message "Current config: %s:%s" widget-name config-value)
 	    (when config-value
-	      (widget-value-set (plist-get (cdr field) 'widget) config-value))
-	    )
-	  )
-	
-	;; (setq elmame-config-text-exec (or (plist-get cfg 'exec) ""))
-	;; (setq elmame-config-text-rom-dir (or (plist-get cfg 'rompath) ""))
-	;; (setq elmame-config-text-working-dir (or (plist-get cfg 'working-dir) ""))
-	;; (widget-value-set elmame-config-widget-text-exec elmame-config-text-exec)
-	;; (widget-value-set elmame-config-widget-text-rom-dir elmame-config-text-rom-dir)
-	;; (widget-value-set elmame-config-widget-text-working-dir elmame-config-text-working-dir)
-	;; (widget-value-set elmame-config-widget-extra-args (plist-get cfg 'args))
-	)
-      )
-    
-    ) )
+	      (widget-value-set (plist-get field 'widget)
+				config-value))))))))
 
 ;;; elmame-config.el ends here
