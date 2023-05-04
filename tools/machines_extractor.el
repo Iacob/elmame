@@ -19,7 +19,8 @@
 	  (setq isbios (alist-get 'isbios (nth 1 machine)))
 
 	  (when (and (not (string= isdevice "yes"))
-		     (not (string= runnable "yes"))
+		     ;;(not (string= runnable "yes"))
+		     (not (string= runnable "no")) ;; TODO: need to test
 		     (not (string= isbios "yes")))
 	    
 	    (setq name (alist-get 'name (nth 1 machine)))
