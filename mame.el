@@ -118,6 +118,17 @@
     (format "%s %s -rompath %s %s" exec machine-name rompath args-text) ) )
 
 
+(defvar mame-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "g" 'mame)
+    (define-key map "c" 'mame-config-open-config-panel)
+    map)
+  "Keymap for `mame-mode'.")
+
+(define-derived-mode mame-mode fundamental-mode "Mame"
+  "Major mode for MAME front-end interface.")
+
+
 ;;;###autoload
 (defun mame ()
   "Start MAME front-end."
@@ -157,6 +168,7 @@
 
 
     (switch-to-buffer "**machine list**")
+    (mame-mode)
     (setq buffer-read-only nil)
     (setq truncate-lines 't)
     (erase-buffer)
@@ -174,7 +186,7 @@
     (define-key (current-local-map) [menu-bar mame config]
       '("Config Panel" . mame-config-open-config-panel))
 
-    (insert "\n" (propertize "Use mame menu from the menubar to open config panel or refresh this page." 'face 'italic) "\n\n")
+    (insert "\n" (propertize "Use MAME menu from menubar to open config panel or refresh this page." 'face 'italic) "\n\n")
     
     (mapc (lambda (m)
 	      (let ((machine-name (plist-get m 'name))
@@ -213,4 +225,4 @@
     (goto-char (point-min))
     (setq buffer-read-only 't) ) )
 
-;;; elmame.el ends here
+;;; mame.el ends here
