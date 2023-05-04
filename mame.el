@@ -1,8 +1,8 @@
-;;; elmame.el --- A MAME front-end
+;;; mame.el --- A MAME front-end
 
 ;; Author: Yong <luo.yong.name@gmail.com>
 ;; URL: https://github.com/Iacob/elmame
-;; Version: 0.1a
+;; Version: 1.0-rc1
 ;; Package-Requires: ((emacs "27.1"))
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -22,22 +22,22 @@
 
 ;; A MAME front-end.
 
-;; ``M-x elmame'' to start the main interface.
-;; Then use Elmame menu from menu bar to open config panel or refresh the page content.
+;; ``M-x mame'' to start the main interface.
+;; Then `mame' menu from the menu bar to open config panel or refresh the page content.
 
 ;;; Code:
 
-(provide 'elmame)
+(provide 'mame)
 
-(require 'elmame-mame-machine-info-loader)
+(require 'mame-machine-info-loader)
 ;;(load-file "mame_machine_info_loader.el")
 
-(require 'elmame-config)
+(require 'mame-config)
 
-(defvar elmame-mame-user-config nil "The `elmame-mame' user config from file.")
-(defvar elmame-mame-context nil "The `elmame-mame' context at runtime.")
+(defvar mame-user-config nil "The `mame.el' user config from file.")
+(defvar mame-context nil "The `mame.el' context at runtime.")
 
-(defun elmame-mame-read-user-config ()
+(defun mame-read-user-config ()
   "Read user config."
   (let (config-text cfg)
     (condition-case err
@@ -50,42 +50,42 @@
       (error (message "Exception: %s" err) ) )
     cfg ) )
 
-(defun elmame-mame-reload-user-config ()
+(defun mame-reload-user-config ()
   "Reload user config to variable and return it."
-  (setq elmame-mame-user-config (elmame-mame-read-user-config)) )
+  (setq mame-user-config (mame-read-user-config)) )
 
-(defun elmame-mame-get-user-config ()
+(defun mame-get-user-config ()
   "Get user config, load it into memory if it's not loaded yet."
-  (or elmame-mame-user-config (elmame-mame-reload-user-config)))
+  (or mame-user-config (mame-reload-user-config)))
 
-(defun elmame-mame-get-config (name)
+(defun mame-get-config (name)
   "Get config value with a NAME."
   (let ((default-config '(exec "mame" rompath "roms"))
-	(user-config (elmame-mame-get-user-config))
+	(user-config (mame-get-user-config))
 	config-value)
-    (if (boundp 'elmame-mame-config)
-	(setq config-value (plist-get elmame-mame-config name)))
+    (if (boundp 'mame-config)
+	(setq config-value (plist-get mame-config name)))
     (if (not config-value)
 	(setq config-value (plist-get user-config name)))
     (if (not config-value)
 	(setq config-value (plist-get default-config name)))
     config-value ) )
 
-(defun elmame-mame-save-context (name value)
-  "Save VALUE to elmame context with a NAME."
-  (if (and (boundp 'elmame-mame-context) elmame-mame-context)
-      (if (assoc name elmame-mame-context)
-	  (setcdr (assoc name elmame-mame-context) value)
-	(nconc elmame-mame-context (cons name value)) )
-    (setq elmame-mame-context (list (cons name value))) ) )
+(defun mame-save-context (name value)
+  "Save VALUE to context with key NAME."
+  (if (and (boundp 'mame-context) mame-context)
+      (if (assoc name mame-context)
+	  (setcdr (assoc name mame-context) value)
+	(nconc mame-context (cons name value)) )
+    (setq mame-context (list (cons name value))) ) )
 
-(defun elmame-mame-list-roms ()
+(defun mame-list-roms ()
   "Filter mame roms in rompath and return the list of valid ones."
-  (let ((rompath (elmame-mame-get-config 'rompath))
-	(working-dir (elmame-mame-get-config 'working-dir))
+  (let ((rompath (mame-get-config 'rompath))
+	(working-dir (mame-get-config 'working-dir))
 	filelist
 	machinelist
-	(machinedefs (elmame-mame-machine-info-loader-load)))
+	(machinedefs (mame-machine-info-loader-load)))
 
     (with-temp-buffer
       (when working-dir
@@ -102,11 +102,11 @@
       ;;(message "machinelist: %s" machinelist)
       machinelist ) ) )
 
-(defun elmame-mame-make-shell-command (machine-name)
+(defun mame-make-shell-command (machine-name)
   "Make the shell command to start a machine with MACHINE-NAME."
-  (let ((exec (elmame-mame-get-config 'exec))
-	(rompath (elmame-mame-get-config 'rompath))
-	(args (elmame-mame-get-config 'args))
+  (let ((exec (mame-get-config 'exec))
+	(rompath (mame-get-config 'rompath))
+	(args (mame-get-config 'args))
 	args-text)
     (if (not args)
 	(setq args-text "")
@@ -117,16 +117,18 @@
     ;; mame <machine-name> -rompath roms
     (format "%s %s -rompath %s %s" exec machine-name rompath args-text) ) )
 
-(defun elmame-mame ()
+
+;;;###autoload
+(defun mame ()
   "Start MAME front-end."
   (interactive)
-  (run-hooks 'elmame-mame-mode-hook)
-  (elmame-mame-reload-user-config)
-  (message "config: %s" (elmame-mame-get-user-config))
-  (message "rompath: %s" (elmame-mame-get-config 'rompath))
+  (run-hooks 'mame-mode-hook)
+  (mame-reload-user-config)
+  (message "config: %s" (mame-get-user-config))
+  (message "rompath: %s" (mame-get-config 'rompath))
   (let (machinelist
 	column-width
-	(working-dir (elmame-mame-get-config 'working-dir))
+	(working-dir (mame-get-config 'working-dir))
 	fn-calc-width
 	fn-get-width)
 
@@ -134,7 +136,7 @@
     ;;   (message "Swtiching to directory: %s" working-dir)
     ;;   (cd working-dir) )
 
-    (setq machinelist (elmame-mame-list-roms))
+    (setq machinelist (mame-list-roms))
     (setq fn-calc-width
 	  (lambda (col)
 	    (let (textlen-list)
@@ -143,15 +145,15 @@
 
     (setq fn-get-width
 	  (lambda (col)
-	    (message "::%s" (alist-get 'column-width elmame-mame-context))
-	    (plist-get (alist-get 'column-width elmame-mame-context) col) ) )
+	    (message "::%s" (alist-get 'column-width mame-context))
+	    (plist-get (alist-get 'column-width mame-context) col) ) )
     
     (setq column-width
 	  (list 'name (funcall fn-calc-width 'name)
 		'year (funcall fn-calc-width 'year)
 		'manufacturer (funcall fn-calc-width 'manufacturer)
 		'desc (funcall fn-calc-width 'desc) ) )
-    (elmame-mame-save-context 'column-width column-width)
+    (mame-save-context 'column-width column-width)
 
 
     (switch-to-buffer "**machine list**")
@@ -164,15 +166,15 @@
       (cd working-dir) )
 
     (if (null (current-local-map))
-	(use-local-map (make-sparse-keymap "Elmame")) )
-    (define-key (current-local-map) [menu-bar elmame]
-      (cons "Elmame" (make-sparse-keymap "Elmame")))
-    (define-key (current-local-map) [menu-bar elmame refresh]
-      '("Refresh" . elmame-mame))
-    (define-key (current-local-map) [menu-bar elmame config]
-      '("Config Panel" . elmame-config-open-config-panel))
+	(use-local-map (make-sparse-keymap "mame")) )
+    (define-key (current-local-map) [menu-bar mame]
+      (cons "mame" (make-sparse-keymap "mame")))
+    (define-key (current-local-map) [menu-bar mame refresh]
+      '("Refresh" . mame))
+    (define-key (current-local-map) [menu-bar mame config]
+      '("Config Panel" . mame-config-open-config-panel))
 
-    (insert "\n" (propertize "Use Elmame menu from the menubar to open config panel or refresh this page." 'face 'italic) "\n\n")
+    (insert "\n" (propertize "Use mame menu from the menubar to open config panel or refresh this page." 'face 'italic) "\n\n")
     
     (mapc (lambda (m)
 	      (let ((machine-name (plist-get m 'name))
@@ -189,7 +191,7 @@
 		 'action
 		 (lambda (x)
 		   (let* ((machine-name (button-get x 'machine-name))
-			  (cmd-line (elmame-mame-make-shell-command machine-name)))
+			  (cmd-line (mame-make-shell-command machine-name)))
 		     ;;(message-box cmd-line)
 		     (switch-to-buffer-other-window "**mame output**")
 		     
@@ -210,17 +212,5 @@
     (insert "\n")
     (goto-char (point-min))
     (setq buffer-read-only 't) ) )
-
-
-;;;###autoload
-(defun elmame ()
-  "Start MAME front-end."
-  (interactive)
-  (elmame-mame))
-
-;; (defun elmame-mame-open-config-panel ()
-;;   (interactive)
-;;   (load-library "elmame-config")
-;;   (elmame-mame-config-panel) )
 
 ;;; elmame.el ends here

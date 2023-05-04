@@ -1,8 +1,8 @@
-;;; elmame-config.el --- The elmame config panel
+;;; mame-config.el --- Config panel of mame.el
 
 ;; Author: Yong <luo.yong.name@gmail.com>
 ;; URL: https://github.com/Iacob/elmame
-;; Version: 0.1a
+;; Version: 1.0-rc1
 ;; Package-Requires: ((emacs "27.1"))
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -20,63 +20,63 @@
 
 ;;; Commentary:
 
-;; elmame configuration panel
+;; Configuration panel for mame.el
 
 
 ;;; Code:
 
 
-(provide 'elmame-config)
+(provide 'mame-config)
 
 (require 'widget)
 (require 'wid-edit)
 
-(require 'elmame)
+(require 'mame)
 
-(defvar elmame-config-user-config-text "" "User config file content.")
-(defvar elmame-config-form '() "Form fields.")
-(defvar elmame-config-formvalues (make-hash-table)  "Form values.")
+(defvar mame-config-user-config-text "" "User config file content.")
+(defvar mame-config-form '() "Form fields.")
+(defvar mame-config-formvalues (make-hash-table)  "Form values.")
 
 ;;;###autoload
-(defun elmame-config-open-config-panel ()
-  "Open elmame config panel."
+(defun mame-config-open-config-panel ()
+  "Open mame.el config panel."
   (interactive)
   
   (let (fn-save-config)
-    (switch-to-buffer "**elmame-mame configuration**")
+    (switch-to-buffer "**mame.el configuration**")
 
-    (make-local-variable 'elmame-config-form)
-    (make-local-variable 'elmame-config-formvalues)
+    (make-local-variable 'mame-config-form)
+    (make-local-variable 'mame-config-formvalues)
 
     (setq fn-save-config
 	  (lambda (&rest params)
-	    (setq elmame-config-user-config-text "")
+	    (setq mame-config-user-config-text "")
 	    (let (config-text)
 	      ;; Write values in 'value-widget' to formvalues hashmap.
-	      (dolist (field elmame-config-form)
+	      (dolist (field mame-config-form)
 		(when (equal (plist-get field 'type) 'value-widget)
 		  (puthash (plist-get field 'name)
 			   (widget-value (plist-get field 'widget))
-			   elmame-config-formvalues)))
+			   mame-config-formvalues)))
 	      (maphash (lambda (config-key config-value)
 			 (when (> (length (or config-value "")) 0)
-			   (setq elmame-config-user-config-text
-			       (concat elmame-config-user-config-text
+			   (setq mame-config-user-config-text
+			       (concat mame-config-user-config-text
 				       (format "%s " config-key)
 				       (json-serialize config-value)
 				       "\n"))))
-		       elmame-config-formvalues)
-	      (setq elmame-config-user-config-text
-		    (concat "(" elmame-config-user-config-text ")"))
+		       mame-config-formvalues)
+	      (setq mame-config-user-config-text
+		    (concat "(" mame-config-user-config-text ")"))
 	      (save-window-excursion
 		(with-temp-buffer
-		  (message "config content to save:\n %s" elmame-config-user-config-text)
-		  (insert elmame-config-user-config-text)
+		  (message "config content to save:\n %s" mame-config-user-config-text)
+		  (insert mame-config-user-config-text)
 		  (write-file "~/.elmame-mame" 't))))))
     
     ;; (let ((inhibit-read-only 't))
     ;;   (erase-buffer))
-    (insert "\n" (propertize "elmame-mame configuration" 'face 'info-title-2) "\n\n")
+    (insert "\n" (propertize "mame.el configuration" 'face 'info-title-2) "\n\n")
     (widget-create 'link
 		   :notify
 		   (lambda (&rest params)
@@ -85,13 +85,13 @@
 			     (read-directory-name
 			      "Please select working directory: "))
 		       (puthash 'working-dir dir-name
-				elmame-config-formvalues)
-		       (dolist (field elmame-config-form)
+				mame-config-formvalues)
+		       (dolist (field mame-config-form)
 			 (when (equal (plist-get field 'name) 'working-dir)
 			   (widget-value-set (plist-get field 'widget) dir-name)))))
 		   "Select working directory")
     (insert "\n")
-    (add-to-list 'elmame-config-form
+    (add-to-list 'mame-config-form
 		 (list 'name 'working-dir
 		       'type 'widget
 		       'widget (widget-create 'const :format "➥ %v" "") ) )
@@ -104,14 +104,14 @@
 			 (setq dir-name
 			       (read-file-name
 				"Please select mame executable: "))
-			 (puthash 'exec dir-name elmame-config-formvalues)
-			 (dolist (field elmame-config-form)
+			 (puthash 'exec dir-name mame-config-formvalues)
+			 (dolist (field mame-config-form)
 			   (when (equal (plist-get field 'name) 'exec)
 			     (widget-value-set (plist-get field 'widget)
 					       dir-name) ) ) ) ) )
 		   "Select mame executable")
     (insert "\n")
-    (add-to-list 'elmame-config-form
+    (add-to-list 'mame-config-form
 		 (list 'name 'exec
 		       'type 'text-widget
 		       'widget (widget-create 'const :format "➥ %v" "")))
@@ -123,20 +123,20 @@
 		       (setq dir-name
 			     (read-file-name
 			      "Please select rom directory: "))
-		       (puthash 'rompath dir-name elmame-config-formvalues)
-		       (dolist (field elmame-config-form)
+		       (puthash 'rompath dir-name mame-config-formvalues)
+		       (dolist (field mame-config-form)
 			 (when (equal (plist-get field 'name) 'rompath)
 			   (widget-value-set (plist-get field 'widget)
 					     dir-name) ) ) ) )
 		   "Select rom directory")
     (insert "\n")
-    (add-to-list 'elmame-config-form
+    (add-to-list 'mame-config-form
 		 (list 'name 'rompath
 		       'type 'text-widget
 		       'widget (widget-create 'const :format "➥ %v" "") ) )
     (insert "\n")
     (insert "\nextra arguments:\n")
-    (add-to-list 'elmame-config-form
+    (add-to-list 'mame-config-form
 		 (list 'name 'args
 		       'type 'value-widget
 		       'widget (widget-create 'editable-field "") ) )
@@ -150,21 +150,21 @@
     (widget-setup)
 
     ;; Initial values
-    (let ((cfg (elmame-mame-read-user-config)))
+    (let ((cfg (mame-read-user-config)))
       (message "cfg: %s" cfg)
       (when cfg
-	(puthash 'working-dir (plist-get cfg 'working-dir) elmame-config-formvalues)
-	(puthash 'exec (plist-get cfg 'exec) elmame-config-formvalues)
-	(puthash 'rompath (plist-get cfg 'rompath) elmame-config-formvalues)
-	(puthash 'args (plist-get cfg 'args) elmame-config-formvalues)
+	(puthash 'working-dir (plist-get cfg 'working-dir) mame-config-formvalues)
+	(puthash 'exec (plist-get cfg 'exec) mame-config-formvalues)
+	(puthash 'rompath (plist-get cfg 'rompath) mame-config-formvalues)
+	(puthash 'args (plist-get cfg 'args) mame-config-formvalues)
 
-	(dolist (field elmame-config-form)
+	(dolist (field mame-config-form)
 	  (let* ((widget-name (plist-get field 'name))
 		 (config-value
-		  (gethash widget-name elmame-config-formvalues)))
+		  (gethash widget-name mame-config-formvalues)))
 	    ;;(message "Current config: %s:%s" widget-name config-value)
 	    (when config-value
 	      (widget-value-set (plist-get field 'widget)
 				config-value))))))))
 
-;;; elmame-config.el ends here
+;;; mame-config.el ends here
