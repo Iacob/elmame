@@ -168,7 +168,7 @@
     (if (null (current-local-map))
 	(use-local-map (make-sparse-keymap "mame")) )
     (define-key (current-local-map) [menu-bar mame]
-      (cons "mame" (make-sparse-keymap "mame")))
+      (cons "MAME" (make-sparse-keymap "mame")))
     (define-key (current-local-map) [menu-bar mame refresh]
       '("Refresh" . mame))
     (define-key (current-local-map) [menu-bar mame config]
