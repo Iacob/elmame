@@ -133,7 +133,13 @@
 (defun mame ()
   "Start MAME front-end."
   (interactive)
-  (run-hooks 'mame-mode-hook)
+
+  (switch-to-buffer "**machine list**")
+    (mame-mode)
+    (setq buffer-read-only nil)
+    (setq truncate-lines 't)
+    (erase-buffer)
+  
   (mame-reload-user-config)
   (message "config: %s" (mame-get-user-config))
   (message "rompath: %s" (mame-get-config 'rompath))
@@ -166,12 +172,6 @@
 		'desc (funcall fn-calc-width 'desc) ) )
     (mame-save-context 'column-width column-width)
 
-
-    (switch-to-buffer "**machine list**")
-    (mame-mode)
-    (setq buffer-read-only nil)
-    (setq truncate-lines 't)
-    (erase-buffer)
 
     (when working-dir
       (message "Swtiching to directory: %s" working-dir)
