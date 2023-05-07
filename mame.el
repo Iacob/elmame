@@ -122,6 +122,12 @@
   (let ((map (make-sparse-keymap)))
     (define-key map "g" 'mame)
     (define-key map "c" 'mame-config-open-config-panel)
+    (define-key map [menu-bar mame]
+      (cons "MAME" (make-sparse-keymap "mame")))
+    (define-key map [menu-bar mame refresh]
+      '("Refresh" . mame))
+    (define-key map [menu-bar mame config]
+      '("Config Panel" . mame-config-open-config-panel))
     map)
   "Keymap for `mame-mode'.")
 
@@ -177,14 +183,14 @@
       (message "Swtiching to directory: %s" working-dir)
       (cd working-dir) )
 
-    (if (null (current-local-map))
-	(use-local-map (make-sparse-keymap "mame")) )
-    (define-key (current-local-map) [menu-bar mame]
-      (cons "MAME" (make-sparse-keymap "mame")))
-    (define-key (current-local-map) [menu-bar mame refresh]
-      '("Refresh" . mame))
-    (define-key (current-local-map) [menu-bar mame config]
-      '("Config Panel" . mame-config-open-config-panel))
+    ;; (if (null (current-local-map))
+    ;; 	(use-local-map (make-sparse-keymap "mame")) )
+    ;; (define-key (current-local-map) [menu-bar mame]
+    ;;   (cons "MAME" (make-sparse-keymap "mame")))
+    ;; (define-key (current-local-map) [menu-bar mame refresh]
+    ;;   '("Refresh" . mame))
+    ;; (define-key (current-local-map) [menu-bar mame config]
+    ;;   '("Config Panel" . mame-config-open-config-panel))
 
     (insert "\n" (propertize "Use MAME menu from menubar to open config panel or refresh this page." 'face 'italic) "\n\n")
     
