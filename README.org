@@ -11,13 +11,13 @@ Put the three files =mame.el= , =mame-config.el= and =mame_machine_info_loader.e
 Add the following lines to ~/.emacs to integrate mame.el to emacs:
 
 #+BEGIN_SRC emacs-lisp
-  ;; Add elmame to load-path
+  ;; Add mame.el to load-path
   (add-to-list 'load-path "<mame.el-dir>")
-  ;; Add elmame to autoload list
+  ;; Add mame.el to autoload list
   (autoload 'mame "mame" "" 't)
 #+END_SRC
 
 * Start
 
-Use ``M-x mame'' to start the main interface.
-Then use `MAME' menu from the menu bar to open config panel or refresh the page content.
+Use ``M-x mame'' to start the main interface. \\
+Then use ``MAME'' menu from the menu bar to open config panel or refresh the page content.
