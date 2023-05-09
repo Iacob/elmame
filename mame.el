@@ -102,6 +102,33 @@
       ;;(message "machinelist: %s" machinelist)
       machinelist ) ) )
 
+(defun mame--put-columns ()
+  "Put column names on screen."
+  ;;(name year manufacturer desc)
+  (let* ((columns-width (alist-get 'columns-width mame-context))
+         (name-width (plist-get columns-width 'name))
+         (year-width (plist-get columns-width 'year))
+         (manufacturer-width (plist-get columns-width 'manufacturer))
+         (desc-width (plist-get columns-width 'desc))
+         (columns '(name year manufacturer desc)))
+
+    (dolist (col columns)
+      (let ((col-text (format "%s" col))
+            (col-width (plist-get columns-width col)))
+        (widget-create 'link
+                       :col col
+                       :notify (lambda (&rest params)
+                                 (message-box "%s"
+                                              (widget-get (car params)
+                                                          :col)))
+                       col-text)
+        (insert (make-string (- col-width (length col-text) 2) ?\s))
+        (insert " ")))
+    
+    (insert "\n")
+    )
+  )
+
 (defun mame-make-shell-command (machine-name)
   "Make the shell command to start a machine with MACHINE-NAME."
   (let ((exec (mame-get-config 'exec))
@@ -150,7 +177,7 @@
   (message "config: %s" (mame-get-user-config))
   (message "rompath: %s" (mame-get-config 'rompath))
   (let (machinelist
-	column-width
+	columns-width
 	(working-dir (mame-get-config 'working-dir))
 	fn-calc-width
 	fn-get-width)
@@ -161,23 +188,25 @@
 
     (setq machinelist (mame-list-roms))
     (setq fn-calc-width
-	  (lambda (col)
-	    (let (textlen-list)
+          (lambda (col)
+            (let (textlen-list)
 	      (setq textlen-list (mapcar (lambda (x) (length (plist-get x col))) machinelist))
-	      (if textlen-list (seq-max textlen-list) 0) ) ) )
+              (setq textlen-list
+                    (append textlen-list
+                            (list (+ 3 (length (format "%s" col))))))
+	      ;;(if textlen-list (seq-max textlen-list) 0)
+              (seq-max textlen-list))))
 
     (setq fn-get-width
 	  (lambda (col)
-	    (message "::%s" (alist-get 'column-width mame-context))
-	    (plist-get (alist-get 'column-width mame-context) col) ) )
+	    (plist-get (alist-get 'columns-width mame-context) col) ) )
     
-    (setq column-width
-	  (list 'name (funcall fn-calc-width 'name)
+    (setq columns-width
+          (list 'name (funcall fn-calc-width 'name)
 		'year (funcall fn-calc-width 'year)
 		'manufacturer (funcall fn-calc-width 'manufacturer)
 		'desc (funcall fn-calc-width 'desc) ) )
-    (mame-save-context 'column-width column-width)
-
+    (mame-save-context 'columns-width columns-width)
 
     (when working-dir
       (message "Swtiching to directory: %s" working-dir)
@@ -193,6 +222,8 @@
     ;;   '("Config Panel" . mame-config-open-config-panel))
 
     (insert "\n" (propertize "Use MAME menu from menubar to open config panel or refresh this page." 'face 'italic) "\n\n")
+
+    (mame--put-columns)
     
     (mapc (lambda (m)
 	      (let ((machine-name (plist-get m 'name))
