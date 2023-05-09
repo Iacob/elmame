@@ -41,18 +41,18 @@
   "Read user config."
   (let (config-text cfg)
     (condition-case err
-	(when (file-readable-p "~/.elmame-mame")
-	  (with-temp-buffer
-	    (insert-file-contents "~/.elmame-mame")
-	    (setq config-text
-		  (buffer-substring-no-properties (point-min) (point-max))))
-	  (setq cfg (read config-text)))
-      (error (message "Exception: %s" err) ) )
-    cfg ) )
+        (when (file-readable-p "~/.elmame-mame")
+          (with-temp-buffer
+            (insert-file-contents "~/.elmame-mame")
+            (setq config-text
+                  (buffer-substring-no-properties (point-min) (point-max))))
+          (setq cfg (read config-text)))
+      (error (message "Exception: %s" err)))
+    cfg))
 
 (defun mame-reload-user-config ()
   "Reload user config to variable and return it."
-  (setq mame-user-config (mame-read-user-config)) )
+  (setq mame-user-config (mame-read-user-config)))
 
 (defun mame-get-user-config ()
   "Get user config, load it into memory if it's not loaded yet."
@@ -61,15 +61,15 @@
 (defun mame-get-config (name)
   "Get config value with a NAME."
   (let ((default-config '(exec "mame" rompath "roms"))
-	(user-config (mame-get-user-config))
-	config-value)
+        (user-config (mame-get-user-config))
+        config-value)
     (if (boundp 'mame-config)
-	(setq config-value (plist-get mame-config name)))
+        (setq config-value (plist-get mame-config name)))
     (if (not config-value)
-	(setq config-value (plist-get user-config name)))
+        (setq config-value (plist-get user-config name)))
     (if (not config-value)
-	(setq config-value (plist-get default-config name)))
-    config-value ) )
+        (setq config-value (plist-get default-config name)))
+    config-value))
 
 (defun mame-save-context (name value)
   "Save VALUE to context with key NAME."
@@ -77,7 +77,7 @@
       (if (assoc name mame-context)
 	  (setcdr (assoc name mame-context) value)
 	(nconc mame-context (cons name value)) )
-    (setq mame-context (list (cons name value))) ) )
+    (setq mame-context (list (cons name value)))))
 
 (defun mame-list-roms ()
   "Filter mame roms in rompath and return the list of valid ones."
@@ -98,9 +98,9 @@
 	(setq filelist (mapcar (lambda (x) (car (split-string x "\\."))) filelist))
 	;;(message "filelist: %s" filelist)
 	(setq machinelist (mapcar (lambda (m) (seq-find (lambda (def) (string= (plist-get def 'name) m)) machinedefs)) filelist))
-	(setq machinelist (seq-filter (lambda (m) m) machinelist)) )
+	(setq machinelist (seq-filter (lambda (m) m) machinelist)))
       ;;(message "machinelist: %s" machinelist)
-      machinelist ) ) )
+      machinelist)))
 
 (defun mame--put-columns ()
   "Put column names on screen."
@@ -125,9 +125,7 @@
         (insert (make-string (- col-width (length col-text) 2) ?\s))
         (insert " ")))
     
-    (insert "\n")
-    )
-  )
+    (insert "\n")))
 
 (defun mame-make-shell-command (machine-name)
   "Make the shell command to start a machine with MACHINE-NAME."
@@ -142,7 +140,7 @@
 	(setq args-text
 	      (string-join (mapcar (lambda (arg) (format "%s" arg)) args) " "))))
     ;; mame <machine-name> -rompath roms
-    (format "%s %s -rompath %s %s" exec machine-name rompath args-text) ) )
+    (format "%s %s -rompath %s %s" exec machine-name rompath args-text)))
 
 
 (defvar mame-mode-map
@@ -199,18 +197,18 @@
 
     (setq fn-get-width
 	  (lambda (col)
-	    (plist-get (alist-get 'columns-width mame-context) col) ) )
+	    (plist-get (alist-get 'columns-width mame-context) col)))
     
     (setq columns-width
           (list 'name (funcall fn-calc-width 'name)
 		'year (funcall fn-calc-width 'year)
 		'manufacturer (funcall fn-calc-width 'manufacturer)
-		'desc (funcall fn-calc-width 'desc) ) )
+		'desc (funcall fn-calc-width 'desc)))
     (mame-save-context 'columns-width columns-width)
 
     (when working-dir
       (message "Swtiching to directory: %s" working-dir)
-      (cd working-dir) )
+      (cd working-dir))
 
     ;; (if (null (current-local-map))
     ;; 	(use-local-map (make-sparse-keymap "mame")) )
@@ -233,7 +231,7 @@
 		    (name-width (funcall fn-get-width 'name))
 		    (year-width (funcall fn-get-width 'year))
 		    (manufacturer-width (funcall fn-get-width 'manufacturer))
-		    (desc-width (funcall fn-get-width 'desc)) )
+		    (desc-width (funcall fn-get-width 'desc)))
 		
 		(insert-button
 		 machine-name
@@ -256,10 +254,10 @@
 		(insert (make-string (1+ (- manufacturer-width (length manufacturer))) ?\s))
 		(insert desc)
 		(insert (make-string (1+ (- desc-width (length desc))) ?\s))
-		(insert "\n") ) )
+		(insert "\n")))
 	    machinelist)
     (insert "\n")
     (goto-char (point-min))
-    (setq buffer-read-only 't) ) )
+    (setq buffer-read-only 't)))
 
 ;;; mame.el ends here
