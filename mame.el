@@ -127,6 +127,31 @@
     
     (insert "\n")))
 
+(defun mame--grouped-sort-machines (grouped-list sort-by)
+  "Sort machines in GROUPED-LIST by property SORT-BY.
+This function Return a sorted grouped list."
+  (let (value-list
+        grouped-sorted-list
+        result-list)
+    
+    (dolist (machines grouped-list)
+      (setq value-list (seq-uniq (mapcar (lambda (m) (plist-get m sort-by)) machines)))
+      (setq value-list (sort value-list 'string<))
+      (setq grouped-sorted-list (mapcar (lambda (val) (seq-filter (lambda (m) (string= val (plist-get m sort-by))) machines)) value-list))
+      (setq result-list (append result-list grouped-sorted-list)))
+    result-list))
+
+(defun mame--sort-machines (machines sort-by-list)
+  "Sort list of MACHINES by properties listed in SORT-BY-LIST."
+  (let ((sorted-list (list machines))
+        result-list)
+    (dolist (sort-by sort-by-list)
+      (setq sorted-list (mame--grouped-sort-machines sorted-list sort-by)))
+    (dolist (grp sorted-list)
+      (dolist (machine grp)
+        (add-to-list 'result-list machine 't)))
+    result-list))
+
 (defun mame-make-shell-command (machine-name)
   "Make the shell command to start a machine with MACHINE-NAME."
   (let ((exec (mame-get-config 'exec))
