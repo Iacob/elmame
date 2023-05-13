@@ -119,13 +119,13 @@
                                  (setq sort-list
                                        (alist-get 'sort-by-list mame-context))
                                  (setq sort-list
-                                       (setq-filter (lambda (x) (not (equal sort-prop x))) sort-list))
+                                       (seq-filter (lambda (x) (not (equal sort-prop x))) sort-list))
                                  (mame-save-context 'sort-by-list sort-list)
                                  (mame)))
-                     col-text)
+                     "✗")
       )
-    )
-  )
+    (when sort-by-list
+      (insert "\n\n"))))
 
 
 (defun mame--put-columns ()
@@ -223,10 +223,12 @@ This function Return a sorted grouped list."
   (interactive)
 
   (switch-to-buffer "**machine list**")
-    (mame-mode)
-    (setq buffer-read-only nil)
-    (setq truncate-lines 't)
-    (erase-buffer)
+  (mame-mode)
+  (setq buffer-read-only nil)
+  (setq truncate-lines 't)
+  (erase-buffer)
+
+  (message "Current Context: %s" mame-context)
   
   (mame-reload-user-config)
   (message "config: %s" (mame-get-user-config))
@@ -235,7 +237,8 @@ This function Return a sorted grouped list."
 	columns-width
 	(working-dir (mame-get-config 'working-dir))
 	fn-calc-width
-	fn-get-width)
+	fn-get-width
+        (sort-by-list (alist-get 'sort-by-list mame-context)))
 
     ;; (when working-dir
     ;;   (message "Swtiching to directory: %s" working-dir)
@@ -263,6 +266,8 @@ This function Return a sorted grouped list."
 		'desc (funcall fn-calc-width 'desc)))
     (mame-save-context 'columns-width columns-width)
 
+    (setq machinelist (mame--sort-machines machinelist sort-by-list))
+
     (when working-dir
       (message "Swtiching to directory: %s" working-dir)
       (cd working-dir))
@@ -278,6 +283,9 @@ This function Return a sorted grouped list."
 
     (insert "\n" (propertize "Use MAME menu from menubar to open config panel or refresh this page." 'face 'italic) "\n\n")
 
+
+    (mame--put-sort-props)
+    
     (mame--put-columns)
     
     (mapc (lambda (m)
