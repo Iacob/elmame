@@ -76,7 +76,7 @@
   (if (and (boundp 'mame-context) mame-context)
       (if (assoc name mame-context)
 	  (setcdr (assoc name mame-context) value)
-	(nconc mame-context (cons name value)) )
+	(add-to-list 'mame-context (cons name value)) )
     (setq mame-context (list (cons name value)))))
 
 (defun mame-list-roms ()
@@ -102,6 +102,32 @@
       ;;(message "machinelist: %s" machinelist)
       machinelist)))
 
+
+(defun mame--put-sort-props ()
+  "List sorted properties on screen."
+  (let ((sort-by-list (alist-get 'sort-by-list mame-context)))
+    (when sort-by-list
+      (insert "Sorted by:"))
+    (dolist (sort-by sort-by-list)
+      (insert " " (format "%s" sort-by))
+      (widget-create 'link
+                     :sort-prop sort-by
+                     :notify (lambda (&rest params)
+                               (let (sort-prop sort-list)
+                                 (setq sort-prop
+                                       (widget-get (car params) :sort-prop))
+                                 (setq sort-list
+                                       (alist-get 'sort-by-list mame-context))
+                                 (setq sort-list
+                                       (setq-filter (lambda (x) (not (equal sort-prop x))) sort-list))
+                                 (mame-save-context 'sort-by-list sort-list)
+                                 (mame)))
+                     col-text)
+      )
+    )
+  )
+
+
 (defun mame--put-columns ()
   "Put column names on screen."
   ;;(name year manufacturer desc)
@@ -111,16 +137,22 @@
          (manufacturer-width (plist-get columns-width 'manufacturer))
          (desc-width (plist-get columns-width 'desc))
          (columns '(name year manufacturer desc)))
-
+    
     (dolist (col columns)
       (let ((col-text (format "%s" col))
             (col-width (plist-get columns-width col)))
         (widget-create 'link
                        :col col
                        :notify (lambda (&rest params)
-                                 (message-box "%s"
-                                              (widget-get (car params)
-                                                          :col)))
+                                 (let (sort-prop sort-list)
+                                   (setq sort-prop
+                                         (widget-get (car params) :col))
+                                   (setq sort-list
+                                         (alist-get 'sort-by-list mame-context))
+                                   (setq sort-list
+                                         (seq-filter (lambda (x) (not (equal sort-prop x))) sort-list))
+                                   (mame-save-context 'sort-by-list (append sort-list (list sort-prop)))
+                                   (mame)))
                        col-text)
         (insert (make-string (- col-width (length col-text) 2) ?\s))
         (insert " ")))
