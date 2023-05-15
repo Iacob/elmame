@@ -2,7 +2,7 @@
 
 ;; Author: Yong <luo.yong.name@gmail.com>
 ;; URL: https://github.com/Iacob/elmame
-;; Version: 1.0
+;; Version: 1.1
 ;; Package-Requires: ((emacs "27.1"))
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -21,6 +21,8 @@
 ;;; Commentary:
 
 ;; A MAME front-end.
+;;
+;; Last Update: Add `sort by columns' features.
 
 ;; ``M-x mame'' to start the main interface.
 ;; Then use `MAME' menu from the menu bar to open config panel or refresh the page content.
@@ -122,8 +124,7 @@
                                        (seq-filter (lambda (x) (not (equal sort-prop x))) sort-list))
                                  (mame-save-context 'sort-by-list sort-list)
                                  (mame)))
-                     "✗")
-      )
+                     "✗"))
     (when sort-by-list
       (insert "\n\n"))))
 
