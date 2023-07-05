@@ -187,7 +187,7 @@
 ;;     result-list))
 
 (defun mame--comp-machines (m1 m2 sort-by-list)
-  "Sort list of MACHINES by properties listed in SORT-BY-LIST."
+  "Compare machines M1 and M2 by properties listed in SORT-BY-LIST."
   (let (got-result result)
     (cl-loop for sort-by in sort-by-list while (not got-result) do
              (when (not (string= (plist-get m1 sort-by)
