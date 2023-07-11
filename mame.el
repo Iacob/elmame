@@ -38,22 +38,22 @@
 (defvar mame-user-config nil "The `mame.el' user config from file.")
 (defvar mame-context nil "The `mame.el' context at runtime.")
 
-(defun mame-read-user-config ()
-  "Read user config."
-  (let (config-text cfg)
-    (condition-case err
-        (when (file-readable-p "~/.elmame-mame")
-          (with-temp-buffer
-            (insert-file-contents "~/.elmame-mame")
-            (setq config-text
-                  (buffer-substring-no-properties (point-min) (point-max))))
-          (setq cfg (read config-text)))
-      (error (message "Exception: %s" err)))
-    cfg))
+;; (defun mame-read-user-config ()
+;;   "Read user config."
+;;   (let (config-text cfg)
+;;     (condition-case err
+;;         (when (file-readable-p "~/.elmame-mame")
+;;           (with-temp-buffer
+;;             (insert-file-contents "~/.elmame-mame")
+;;             (setq config-text
+;;                   (buffer-substring-no-properties (point-min) (point-max))))
+;;           (setq cfg (read config-text)))
+;;       (error (message "Exception: %s" err)))
+;;     cfg))
 
 (defun mame-reload-user-config ()
   "Reload user config to variable and return it."
-  (setq mame-user-config (mame-read-user-config)))
+  (setq mame-user-config (mame-base-read-user-config)))
 
 (defun mame-get-user-config ()
   "Get user config, load it into memory if it's not loaded yet."

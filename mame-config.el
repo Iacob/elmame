@@ -28,7 +28,7 @@
 (require 'widget)
 (require 'wid-edit)
 
-(require 'mame)
+(require 'mame-base)
 
 (defvar mame-config-user-config-text "" "User config file content.")
 (defvar mame-config-form '() "Form fields.")
@@ -147,7 +147,7 @@
     (widget-setup)
 
     ;; Initial values
-    (let ((cfg (mame-read-user-config)))
+    (let ((cfg (mame-base-read-user-config)))
       (message "cfg: %s" cfg)
       (when cfg
 	(puthash 'working-dir (plist-get cfg 'working-dir) mame-config-formvalues)
