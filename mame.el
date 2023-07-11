@@ -30,10 +30,8 @@
 
 ;;; Code:
 
-(provide 'mame)
 
 (require 'mame-machine-info-loader)
-;;(load-file "mame_machine_info_loader.el")
 
 (require 'mame-config)
 
@@ -342,5 +340,9 @@
     (insert "\n")
     (goto-char (point-min))
     (setq buffer-read-only 't)))
+
+
+
+(provide 'mame)
 
 ;;; mame.el ends here

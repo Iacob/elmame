@@ -25,8 +25,6 @@
 ;;; Code:
 
 
-(provide 'mame-config)
-
 (require 'widget)
 (require 'wid-edit)
 
@@ -165,5 +163,9 @@
 	    (when config-value
 	      (widget-value-set (plist-get field 'widget)
 				config-value))))))))
+
+
+
+(provide 'mame-config)
 
 ;;; mame-config.el ends here
